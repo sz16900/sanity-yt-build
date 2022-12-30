@@ -1,6 +1,7 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
 import Image from 'next/image'
+import Link from 'next/link'
 import Banner from '../components/Banner'
 import Header from '../components/Header'
 import {sanityClient, urlFor} from '../sanity'
@@ -24,6 +25,20 @@ const Home: NextPage<Props> = ({posts}: Props) => {
       <Header />
 
       <Banner />
+
+      <div>
+        {posts.map(post => (
+          <Link key={post._id} href={`/post/${post.slug.current}`}>
+            <div>
+              {/* only render this if there is a main image present */}
+              {post.mainImage && (
+                // exclamation mark to ensure it is not null?
+                <img src={urlFor(post.mainImage).url()!} alt="" />
+              )}
+            </div>
+          </Link>
+        ))}
+      </div>
 
 
     </div>

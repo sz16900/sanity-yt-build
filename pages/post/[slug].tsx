@@ -25,6 +25,8 @@ export default Post
 // rom a page that uses dynamic routes, Next.js will statically pre-render all 
 // the paths specified by getStaticPaths.
 
+// 1) find the paths to the blog posts
+
 export async function getStaticPaths() {
     const query = `*[_type == "post"] {
         _id,
@@ -51,6 +53,8 @@ export async function getStaticPaths() {
 // you have to use getStaticProps with getStaticPaths
 // this is telling nextjs, exactly how to use that slug or id to get the information 
 //pertaining to a particular post
+
+// 2) populate each page with information
 
 export const getStaticProps: GetStaticProps = async({ params }) => {
     // the zero is to get just the onject back and not an array ... 
@@ -86,6 +90,13 @@ export const getStaticProps: GetStaticProps = async({ params }) => {
     return {
         props: {
             post,
-        }
+        },
+        // Next.js allows you to create or update static pages after you’ve built your site. 
+        //Incremental Static Regeneration (ISR) enables you to use static-generation on a 
+        //per-page basis, without needing to rebuild the entire site. With ISR, you can retain
+        // the benefits of static while scaling to millions of pages.
+
+        //ISR
+        revalidate: 60, // after 60 update the old cached version
     }
 }

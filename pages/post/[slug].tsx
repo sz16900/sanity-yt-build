@@ -1,15 +1,36 @@
-import { GetStaticProps } from 'next'
-import Header from '../../components/Header'
-import {sanityClient, urlFor} from '../../sanity'
-import { Post } from '../../typings'
-import PortableText from 'react-portable-text'
-import {useForm, SubmitHandler} from 'react-hook-form'
+import { GetStaticProps } from 'next';
+import Header from '../../components/Header';
+import {sanityClient, urlFor} from '../../sanity';
+import { Post } from '../../typings';
+import PortableText from 'react-portable-text';
+import {useForm, SubmitHandler} from 'react-hook-form';
 
 interface Props {
     post: Post;
 }
 
+interface IFormInput {
+    _id: string; 
+    name: string;
+    email: string;
+    comment: string;
+};
+
 function Post({post}: Props) {
+    const {register, handleSubmit, formState: {errors}} = useForm<IFormInput>();
+    // this is a little confussing but it says: lets create a submit function with SubmitHandler prop type and pass in the IFormInput type that we casted?
+    // so now it knows what to expect!
+    const onSubmit: SubmitHandler<IFormInput> = async(data) => {
+        await fetch("/api/createComment", {
+            method: "POST",
+            body: JSON.stringify(data),
+        }).then(() => {
+            console.log(data);
+        }).catch((err) => {
+            console.log(err);
+        })
+    };
+
   return (
     <main>
         <Header />
@@ -45,23 +66,35 @@ function Post({post}: Props) {
             </div>
         </article>
         <hr className="mx-w-lg my-5 border border-yellow-500" />
-        <form className="flex flex-col p-5 max-w-2xl mx-auto mb-10" action="">
+        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-5 max-w-2xl mx-auto mb-10" action="">
             <h3 className="text-sm text-yellow-500">Enjoyed the article?</h3>
             <h4 className='text-3xl font-bold'>Leave a comment bellow!</h4>
             <hr className="py-3 mt-2"></hr>
+            <input 
+                {...register("_id")}
+                type="hidden"
+                name="_id"
+                value={post._id}
+            />
 
             <label className="block mb-5">
                 <span className="text-gray-700">Name</span>
-                <input className="shadow border rounded py-2 px-3 form-input mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" type="text" />
+                <input {...register("name", {required: true})} className="shadow border rounded py-2 px-3 form-input mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" type="text" />
             </label>
             <label className="block mb-5">
                 <span className="text-gray-700">Email</span>
-                <input className="shadow border rounded py-2 px-3 form-input mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" type="text" />
+                <input {...register("email", {required: true})}className="shadow border rounded py-2 px-3 form-input mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" type="email" />
             </label>
             <label className="block mb-5">
                 <span className="text-gray-700">Comment</span>
-                <textarea className="shadow border rounded py-2 px-3 form-textarea mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" rows={8} />
+                <textarea {...register("comment", {required: true})} className="shadow border rounded py-2 px-3 form-textarea mt-1 block w-full ring-yellow-500 outline-none focus:ring" placeholder="Tu madre" rows={8} />
             </label>
+            <div className="flex flex-col p-5">
+                {errors.name && (<span className="text-red-500"> - The Name Field is Required!</span>)}
+                {errors.email && (<span className="text-red-500"> - The Email Field is Required!</span>)}
+                {errors.comment && (<span className="text-red-500"> - The Comment Field is Required!</span>)}
+            </div>
+            <input type="submit" className="shadow bg-yellow-500 hover:bg-yellow-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"/>
         </form>
     </main>
   )

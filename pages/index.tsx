@@ -14,7 +14,6 @@ interface Props {
 // unlike in the video, this works... seems like props can be passed into after NextPage
 // and now it works with <Props>? must be typescript thing
 const Home: NextPage<Props> = ({posts}: Props) => {
-  console.log();
   return (
     <div className="max-w-7xl mx-auto">
       <Head>

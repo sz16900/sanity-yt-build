@@ -2,7 +2,7 @@
 
 export interface Post {
     _id: string;
-    _createAt: string;
+    _createdAt: string;
     title: string;
     author: {
         name: string;

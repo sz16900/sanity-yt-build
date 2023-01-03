@@ -5,6 +5,7 @@ import { Post } from '../../typings';
 import PortableText from 'react-portable-text';
 import {useForm, SubmitHandler} from 'react-hook-form';
 import { useState } from 'react';
+import comment from '../../sanityyoutube/schemas/comment';
 
 interface Props {
     post: Post;
@@ -114,6 +115,20 @@ function Post({post}: Props) {
             <input type="submit" className="shadow bg-yellow-500 hover:bg-yellow-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"/>
         </form>
         )}
+
+    {/* Comment section */}
+
+    <div className='flex flex-col p-10 my-10 mx-auto shadow-yellow-500 shadow space-y-2'>
+        <h3 className='text-4xl'>Comments:</h3>
+        <hr className='pb-2'/>
+        {post.comments.map((comment) => 
+        <div key={comment._id}>
+            <p><span className='text-yellow-500'>{comment.name}</span>: {comment.comment}</p>
+        </div> 
+        )}
+
+
+    </div>
 
 
     </main>

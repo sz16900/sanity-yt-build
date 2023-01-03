@@ -4,6 +4,7 @@ import {sanityClient, urlFor} from '../../sanity';
 import { Post } from '../../typings';
 import PortableText from 'react-portable-text';
 import {useForm, SubmitHandler} from 'react-hook-form';
+import { useState } from 'react';
 
 interface Props {
     post: Post;
@@ -17,6 +18,11 @@ interface IFormInput {
 };
 
 function Post({post}: Props) {
+
+    console.log(post)
+
+    const [submitted, setSubmitted] = useState(false);
+
     const {register, handleSubmit, formState: {errors}} = useForm<IFormInput>();
     // this is a little confussing but it says: lets create a submit function with SubmitHandler prop type and pass in the IFormInput type that we casted?
     // so now it knows what to expect!
@@ -26,8 +32,11 @@ function Post({post}: Props) {
             body: JSON.stringify(data),
         }).then(() => {
             console.log(data);
+            setSubmitted(true);
         }).catch((err) => {
             console.log(err);
+            setSubmitted(false);
+
         })
     };
 
@@ -66,7 +75,15 @@ function Post({post}: Props) {
             </div>
         </article>
         <hr className="mx-w-lg my-5 border border-yellow-500" />
-        <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-5 max-w-2xl mx-auto mb-10" action="">
+
+        {/* if submitted do something else do something else */}
+        {submitted ? (
+            <div className='flex flex-col p-10 my-10 bg-yellow-500 text-white max-w-2xl  mx-auto'>
+                <h1 className='text-3xl font-bold'>Thank you for submitting your comment</h1>
+                <p>Once its been approved, it will appear bellow.</p>
+            </div>
+        ): (
+            <form onSubmit={handleSubmit(onSubmit)} className="flex flex-col p-5 max-w-2xl mx-auto mb-10" action="">
             <h3 className="text-sm text-yellow-500">Enjoyed the article?</h3>
             <h4 className='text-3xl font-bold'>Leave a comment bellow!</h4>
             <hr className="py-3 mt-2"></hr>
@@ -96,6 +113,9 @@ function Post({post}: Props) {
             </div>
             <input type="submit" className="shadow bg-yellow-500 hover:bg-yellow-400 focus:shadow-outline focus:outline-none text-white font-bold py-2 px-4 rounded"/>
         </form>
+        )}
+
+
     </main>
   )
 }
@@ -145,14 +165,18 @@ export const getStaticProps: GetStaticProps = async({ params }) => {
     // also, $slug is a placeholder
     const query = `*[_type == "post" && slug.current == $slug][0] {
         _id,
+        _createdAt,
+        title,
         author -> {
           name,
           image
         },
-        _createdAt,
+        'comments': *[
+          _type == "comment" && 
+          post._ref == ^._id &&
+          approved == true],
         slug,
-        description,
-        title,
+        description, 
         mainImage,
         body,
       }`;

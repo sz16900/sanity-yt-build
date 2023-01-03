@@ -12,7 +12,7 @@
 /.next/
 /out/
 
-sanityyoutube/node_modules
+/sanityyoutube
 
 # production
 /build
